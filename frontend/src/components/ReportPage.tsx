@@ -17,12 +17,14 @@ const ReportPage: React.FC = () => {
       setError(null);
 
       const response = await fetch(`${process.env.REACT_APP_API_URL}/reports`, {
+        mode: 'no-cors',
         headers: {
+          'Access-Control-Allow-Origin': '*',
           'Authorization': `Bearer ${keycloak.token}`
         }
       });
 
-      
+
     } catch (err) {
       setError(err instanceof Error ? err.message : 'An error occurred');
     } finally {
@@ -51,13 +53,12 @@ const ReportPage: React.FC = () => {
     <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100">
       <div className="p-8 bg-white rounded-lg shadow-md">
         <h1 className="text-2xl font-bold mb-6">Usage Reports</h1>
-        
+
         <button
           onClick={downloadReport}
           disabled={loading}
-          className={`px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 ${
-            loading ? 'opacity-50 cursor-not-allowed' : ''
-          }`}
+          className={`px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 ${loading ? 'opacity-50 cursor-not-allowed' : ''
+            }`}
         >
           {loading ? 'Generating Report...' : 'Download Report'}
         </button>
