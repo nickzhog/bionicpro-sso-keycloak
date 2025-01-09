@@ -14,15 +14,15 @@ RUN go mod download
 
 COPY . .
 
-RUN go build -o backend
+RUN go build -o /app/backend
 
 # Run stage
-# FROM alpine
-# RUN apk update --no-cache && apk add --no-cache ca-certificates
-# WORKDIR /app
+FROM alpine
+RUN apk update --no-cache && apk add --no-cache ca-certificates
+WORKDIR /app
 
-# EXPOSE 8000
+EXPOSE 8000
 
-# COPY --from=builder /app/backend .
+COPY --from=builder /app/backend .
 
 CMD ["./backend"]
