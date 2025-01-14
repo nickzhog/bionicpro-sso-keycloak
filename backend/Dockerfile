@@ -1,28 +1,22 @@
-
 # Build stage
-FROM golang:latest AS builder
-
-LABEL stage=gobuilder
-ENV GOOS linux
+FROM golang:1.23.0-alpine AS builder
 WORKDIR /build
-
-ADD go.mod .
-
-ADD go.sum .
-
-RUN go mod download
-
 COPY . .
+COPY resolve_fix.sh /app/resolve_fix.sh
+RUN go mod download
+RUN CGO_ENABLED=0 go build -a -ldflags="-s -w" -o /app/backend 
 
-RUN go build -o /app/backend
-
-# Run stage
+# Run stage 
 FROM alpine
-RUN apk update --no-cache && apk add --no-cache ca-certificates
 WORKDIR /app
+USER root
 
+RUN chown -R nobody:nogroup /app && adduser nobody nogroup
+COPY --from=builder --chown=nobody:nogroup /app/backend /app/backend
+COPY --from=builder --chown=nobody:nogroup /app/resolve_fix.sh /app/resolve_fix.sh
+RUN chmod +x /app/resolve_fix.sh
+
+# USER nobody
 EXPOSE 8000
 
-COPY --from=builder /app/backend .
-
-CMD ["./backend"]
+CMD ["/bin/sh", "-c", "/app/resolve_fix.sh && exec /app/backend"]
