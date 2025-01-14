@@ -17,7 +17,9 @@ const ReportPage: React.FC = () => {
       setError(null);
 
       const response = await fetch(`${process.env.REACT_APP_API_URL}/reports`, {
+        mode: 'no-cors',
         headers: {
+          'Access-Control-Allow-Origin': '*',
           'Authorization': `Bearer ${keycloak.token}`
         }
       });
