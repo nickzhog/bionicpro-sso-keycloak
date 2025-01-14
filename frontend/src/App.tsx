@@ -1,19 +1,21 @@
 import React from 'react';
 import { ReactKeycloakProvider } from '@react-keycloak/web';
-import Keycloak, { KeycloakConfig } from 'keycloak-js';
+import Keycloak from 'keycloak-js';
 import ReportPage from './components/ReportPage';
 
-const keycloakConfig: KeycloakConfig = {
+const keycloak = new Keycloak({
   url: process.env.REACT_APP_KEYCLOAK_URL,
-  realm: process.env.REACT_APP_KEYCLOAK_REALM||"",
-  clientId: process.env.REACT_APP_KEYCLOAK_CLIENT_ID||""
-};
-
-const keycloak = new Keycloak(keycloakConfig);
+  realm: process.env.REACT_APP_KEYCLOAK_REALM || "",
+  clientId: process.env.REACT_APP_KEYCLOAK_CLIENT_ID || "",
+});
 
 const App: React.FC = () => {
+  const initOptions = {
+    pkceMethod: 'S256', // Использование PKCE
+  };
+
   return (
-    <ReactKeycloakProvider authClient={keycloak}>
+    <ReactKeycloakProvider authClient={keycloak} initOptions={initOptions}>
       <div className="App">
         <ReportPage />
       </div>
