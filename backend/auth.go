@@ -7,14 +7,24 @@ import (
 	"io"
 	"net/http"
 	"net/url"
+	"os"
 )
 
-const (
-	keycloakURL    = "http://localhost:8080/realms/reports-realm"
-	clientID       = "reports-api"
-	clientSecret   = "oNwoLQdvJAvRcL89SydqCWCe5ry1jMgq"
-	introspectPath = "/protocol/openid-connect/token/introspect"
-)
+const introspectPath = "/protocol/openid-connect/token/introspect"
+
+type keycloakCfg struct {
+	baseURL      string
+	clientID     string
+	clientSecret string
+}
+
+func keycloakConfig() keycloakCfg {
+	return keycloakCfg{
+		baseURL:      os.Getenv("KEYCLOAK_URL"),
+		clientID:     os.Getenv("KEYCLOAK_CLIENT_ID"),
+		clientSecret: os.Getenv("KEYCLOAK_CLIENT_SECRET"),
+	}
+}
 
 func auth(tokenString string) (*bool, error) {
 	response, err := introspectToken(tokenString)
@@ -46,13 +56,12 @@ func auth(tokenString string) (*bool, error) {
 }
 
 func introspectToken(token string) (map[string]interface{}, error) {
-	// Introspection endpoint URL
-	introspectionURL := fmt.Sprintf("%s%s", keycloakURL, introspectPath)
+	cfg := keycloakConfig()
+	introspectionURL := fmt.Sprintf("%s%s", cfg.baseURL, introspectPath)
 
-	// Prepare form data
 	data := url.Values{}
-	data.Set("client_id", clientID)
-	data.Set("client_secret", clientSecret)
+	data.Set("client_id", cfg.clientID)
+	data.Set("client_secret", cfg.clientSecret)
 	data.Set("token", token)
 
 	fmt.Printf("query to keycloak url(%s) url_values(%s)\n", introspectionURL, data.Encode())
